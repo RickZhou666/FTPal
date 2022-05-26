@@ -56,6 +56,17 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- lombok -->
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <optional>true</optional>
+            <!--<scope>provided</scope>-->
+        </dependency>
+
+
         <!-- load resources faster and save bandwidth. -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
