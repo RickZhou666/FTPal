@@ -13,6 +13,6 @@ public interface EnvironmentRepository extends CrudRepository<Environment, Integ
 
     Iterable<Environment> findByStatusOrderByUpdateTimeDesc(@Param("name") String name);
 
-    Iterable<Environment> findByNameAndVersionOrderByUpdateTimeAsc(@Param("status") String status, @Param("version") String version);
+    Iterable<Environment> findByStatusAndVersionOrderByUpdateTimeAsc(@Param("status") String status, @Param("version") String version);
 
 }
