@@ -6,8 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 public interface ExecutionRepository extends CrudRepository<Execution, Integer> {
-    Iterable<Environment> findByStatus(@Param("status") String status);
+    Iterable<Execution> findByStatus(@Param("status") String status);
 
-    Iterable<Environment> findByBuildNumberOrderByUpdateTimeDesc(@Param("build_number") String buildNumber);
+    Iterable<Execution> findByBuildNumberOrderByUpdateTimeDesc(@Param("build_number") String buildNumber);
 
 }

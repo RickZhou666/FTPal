@@ -8,15 +8,17 @@ import com.rick.ftpal.repository.ExecutionRepository;
 import com.rick.ftpal.repository.ExecutionTaskRepository;
 import com.rick.ftpal.util.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.scanner.Constant;
 
+import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -93,6 +95,66 @@ public class ExecutionService {
         executionTaskRepository.saveAll(assignedExecutionTaskList);
         execution.setEnvironments(assignedEnvironmentList);
         return execution;
+    }
+
+    public Execution handleExceptionFailure(Integer executionId, String name) throws Exception {
+        Date currentDate = new Date();
+        Optional<Execution> optionalExecution = executionRepository.findById(executionId);
+        if (!optionalExecution.isPresent()) {
+            throw new Exception(String.format("Exection [%d] os mpt available during completeExecution", executionId));
+        }
+        Execution execution = optionalExecution.get();
+        List<Environment> environmentList = IteratorUtils.toList(environmentRepository.findByName(name).iterator());
+        for (Environment environment : environmentList) {
+            environment.setStatus(Constants.ENVIRONMENT_STATUS_MAINTENANCE);
+            environment.setUpdateTime(currentDate);
+        }
+        environmentRepository.saveAll(environmentList);
+        return execution;
+    }
+
+    public Execution completeExecution(Integer executionId) throws Exception {
+        Date currentDate = new Date();
+        Optional<Execution> optionalExecution = executionRepository.findById(executionId);
+        if (!optionalExecution.isPresent()) {
+            throw new Exception(String.format("Exection [%d] is not available during completeExecution", executionId));
+        }
+
+        // COMPLETE ExecutionTask
+        Execution execution = optionalExecution.get();
+        execution.setStatus(Constants.EXECUTION_STATUS_COMPLETED);
+        executionRepository.save(execution);
+
+        // COMPLETE ExecutionTask
+        Iterable<ExecutionTask> assignedExecutionTasks = executionTaskRepository.findByExecutionId(executionId);
+        List<Integer> assignedEnvironmentIdList = new ArrayList<>();
+        for (ExecutionTask executionTask : assignedExecutionTasks) {
+            executionTask.setStatus(Constants.EXECUTION_TASK_STATUS_COMPLETED);
+            assignedEnvironmentIdList.add(executionTask.getEnvironmentId());
+        }
+        executionTaskRepository.saveAll(assignedExecutionTasks);
+
+        // COMPLETE Environment
+        Iterable<Environment> assignedEnvironmentList = environmentRepository.findAllById(assignedEnvironmentIdList);
+        for (Environment environment : assignedEnvironmentList) {
+            // Only update wen environment is BUSY
+            if (StringUtils.equals(environment.getStatus(), Constants.ENVIRONMENT_STATUS_BUSY)) {
+                environment.setStatus(Constants.ENVIRONMENT_STATUS_IDLE);
+            }
+            environment.setUpdateTime(currentDate);
+        }
+        environmentRepository.saveAll(assignedEnvironmentList);
+        return execution;
+    }
+
+
+    public Execution findExecutionByBuildNumber(String buildNumber) throws Exception {
+        List<Execution> executionList = IteratorUtils.toList(executionRepository.findByBuildNumberOrderByUpdateTimeDesc(buildNumber).iterator());
+        if (CollectionUtils.isNotEmpty(executionList)) {
+            return executionList.get(0);
+        } else {
+            throw new Exception(String.format("buildNumber [%s] is not available during findExecutionByBuildNumber", buildNumber));
+        }
     }
 
 }
