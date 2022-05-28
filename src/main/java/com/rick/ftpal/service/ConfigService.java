@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Slf4j
@@ -89,15 +88,15 @@ public class ConfigService {
         } else {
             sb.append("  version_from: live" + "\n");
         }
-        sb.append("- name: kfakarecoveryserv" +"\n");
-        sb.append("  version_from: live" +"\n");
-        sb.append("- name: managedaccountapiserv" +"\n");
-        sb.append("  version_from: live" +"\n");
-        sb.append("backed_by: msmaster.qa.paypal.com" +"\n");
-        sb.append("operators:" +"\n");
-        sb.append("-runzhou" +"\n");
-        sb.append("-wukong_readonly" +"\n");
-        sb.append("-WUKONG_READONLY" +"\n");
+        sb.append("- name: kfakarecoveryserv" + "\n");
+        sb.append("  version_from: live" + "\n");
+        sb.append("- name: managedaccountapiserv" + "\n");
+        sb.append("  version_from: live" + "\n");
+        sb.append("backed_by: msmaster.qa.paypal.com" + "\n");
+        sb.append("operators:" + "\n");
+        sb.append("-runzhou" + "\n");
+        sb.append("-wukong_readonly" + "\n");
+        sb.append("-WUKONG_READONLY" + "\n");
         return sb.toString();
     }
 }

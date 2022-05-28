@@ -29,8 +29,17 @@ public class ExecutionController {
     @PutMapping("/generate_execution")
     public ResponseEntity<String> generateExecution(@RequestBody Execution execution) {
         Execution resultExecution = executionService.generateExecution(execution);
-
-        return null;
+        SlackMessenger.sendThreadMessage(
+                execution.getActor(),
+                Constants.SLACK_CHANNEL_NAME,
+                execution.getThreadTs(),
+                String.format(
+                        "FTPal job for component *%s* with version *%s* just got triggered.\nCI job link: <%s|%s>",
+                        resultExecution.getComponent(),
+                        resultExecution.getVersion(),
+                        resultExecution.getBuildUrl(),
+                        "FTPal-#" + resultExecution.getBuildNumber()));
+        return new ResponseEntity(resultExecution.getId(), HttpStatus.CREATED);
     }
 
     @PostMapping("/process_execution/{executionId}")
@@ -47,7 +56,11 @@ public class ExecutionController {
             sb.append(configService.fetchSpec(execution.getId()));
             sb.append("```");
 
-            SlackMessenger.sendThreadMessage(execution.getActor(), Constants.SLACK_CHANNEL_NAME, execution.getThreadTs(), sb.toString());
+            SlackMessenger.sendThreadMessage(
+                    execution.getActor(),
+                    Constants.SLACK_CHANNEL_NAME,
+                    execution.getThreadTs(),
+                    sb.toString());
             return new ResponseEntity(execution.getStatus(), HttpStatus.OK);
         } catch (Exception e) {
             log.error("processExecution Failed", e);

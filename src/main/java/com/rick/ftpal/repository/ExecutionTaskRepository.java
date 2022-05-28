@@ -11,6 +11,6 @@ public interface ExecutionTaskRepository extends CrudRepository<ExecutionTask, I
 
     Iterable<ExecutionTask> findByExecutionIdOrderByExecutionIdAsc(@Param("execution_id") Integer executionId);
 
-    Iterable<ExecutionTask> findByExecutionIdAnAndStatus(@Param("execution_id") Integer executionId, @Param("status") String status);
+    Iterable<ExecutionTask> findByExecutionIdAndStatus(@Param("execution_id") Integer executionId, @Param("status") String status);
 
 }
